@@ -1,0 +1,5 @@
+const categories=[['🔪','Knives & EDC'],['🚙','Cars'],['🎮','Gaming'],['💻','IT & Technology'],['🎹','Music & Gear'],['🏕️','Outdoor'],['🐕','Dogs & Animals'],['💬','General']];
+const grid=document.querySelector('#categories'), room=document.querySelector('#room'), intro=document.querySelector('.intro'), nick=document.querySelector('#nickname');
+for(const [icon,name] of categories){const b=document.createElement('button');b.className='category';b.innerHTML=`<span class="icon">${icon}</span><strong>${name}</strong><small>0 online</small>`;b.onclick=()=>join(name);grid.appendChild(b)}
+function join(name){const n=nick.value.trim();if(!n){nick.focus();nick.placeholder='Enter a nickname first';return}document.querySelector('#roomTitle').textContent=name;document.querySelector('#welcome').textContent=`Welcome, ${n}. You entered ${name}.`;intro.classList.add('hidden');grid.classList.add('hidden');room.classList.remove('hidden');location.hash=encodeURIComponent(name)}
+document.querySelector('#back').onclick=()=>{room.classList.add('hidden');intro.classList.remove('hidden');grid.classList.remove('hidden');history.replaceState(null,'',location.pathname)};
