@@ -755,3 +755,31 @@ input:focus {
 
 }
 
+
+/* Purple + orange outer frame */
+
+.page {
+  position: relative;
+  padding: 3px;
+
+  border: 1px solid #ef62ff;
+  border-radius: 17px;
+
+  box-shadow:
+    0 0 0 3px #ff8a00,
+    0 0 18px rgba(239, 98, 255, .20),
+    0 0 32px rgba(255, 138, 0, .10);
+}
+
+.page::before {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  pointer-events: none;
+
+  border: 1px solid rgba(255, 138, 0, .75);
+  border-radius: 21px;
+
+  box-shadow:
+    0 0 14px rgba(255, 138, 0, .12);
+}
