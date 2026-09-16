@@ -7,88 +7,206 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <main>
-    <header>
-      <h1>Slovakia Based</h1>
-      <p>Decentralized P2P chat</p>
+
+  <div class="page">
+
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">△</div>
+        <div>
+          <h1>Slovakia Based</h1>
+          <p>P2P CHAT / VIDEO</p>
+        </div>
+      </div>
+
+      <div class="network-badge">
+        <span>◉</span>
+        <strong>P2P</strong>
+        <span class="status-dot"></span>
+        <span>Decentralized</span>
+      </div>
     </header>
 
-    <section id="login">
-      <h2>Choose nickname</h2>
-      <input id="nickname" maxlength="32" placeholder="Nickname" autocomplete="off">
 
-      <h2>Choose category</h2>
+    <!-- LOGIN ============================================================ -->
 
-      <div id="categories">
-        <button data-category="general">💬 General</button>
-        <button data-category="knives">🔪 Knives</button>
-        <button data-category="cars">🚗 Cars</button>
-        <button data-category="gaming">🎮 Gaming</button>
-        <button data-category="sports">⚽ Sports</button>
-        <button data-category="linux">🐧 Linux</button>
-        <button data-category="music">🎵 Music</button>
-        <button data-category="dating">❤️ Dating</button>
-      </div>
-    </section>
+    <main id="login" class="login-screen">
 
-    <section id="room" hidden>
-      <div class="room-header">
-        <div>
-          <h2 id="room-name"></h2>
+      <section class="login-panel">
+        <div class="section-label">IDENTITY</div>
+
+        <h2>Choose nickname</h2>
+
+        <input
+          id="nickname"
+          maxlength="32"
+          placeholder="Enter nickname..."
+          autocomplete="off"
+        >
+
+        <div class="section-label categories-label">ROOMS</div>
+
+        <h2>Choose category</h2>
+
+        <div id="categories">
+          <button data-category="general">💬 <span>General</span></button>
+          <button data-category="knives">🔪 <span>Knives</span></button>
+          <button data-category="cars">🚗 <span>Cars</span></button>
+          <button data-category="gaming">🎮 <span>Gaming</span></button>
+          <button data-category="sports">⚽ <span>Sports</span></button>
+          <button data-category="linux">🐧 <span>Linux</span></button>
+          <button data-category="music">🎵 <span>Music</span></button>
+          <button data-category="dating">❤️ <span>Dating</span></button>
+        </div>
+      </section>
+
+    </main>
+
+
+    <!-- ROOM ============================================================= -->
+
+    <main id="room" hidden>
+
+      <nav class="room-topbar">
+
+        <div class="room-info">
+          <span class="room-prefix">ROOM /</span>
+          <strong id="room-name"></strong>
           <span id="connection-status">Connecting...</span>
         </div>
-        <button id="leave">Leave</button>
-      </div>
 
-      <div class="layout">
-        <aside>
-          <h3>Online</h3>
-          <div id="users"></div>
-        </aside>
+        <button id="leave">⏏ Leave room</button>
 
-        <section class="chat">
-          <div id="peer-status">Select somebody online.</div>
+      </nav>
 
-          <div id="video-area" hidden>
-            <div class="video-grid">
-              <div>
-                <span>You</span>
-                <video id="local-video" autoplay muted playsinline></video>
-              </div>
-              <div>
-                <span id="remote-video-label">Peer</span>
-                <video id="remote-video" autoplay playsinline></video>
-              </div>
-            </div>
 
-            <button id="hangup-video" type="button">📴 Hang up</button>
+      <div class="workspace">
+
+        <!-- USERS -------------------------------------------------------- -->
+
+        <aside class="users-panel">
+
+          <div class="panel-title">
+            <span>USERS IN ROOM</span>
+            <span class="live-dot"></span>
           </div>
 
-          <button id="start-video" type="button" disabled>📹 Start video call</button>
+          <div id="users"></div>
 
-          <div id="messages"></div>
+        </aside>
+
+
+        <!-- MAIN CHAT ---------------------------------------------------- -->
+
+        <section class="chat">
+
+          <div class="chat-status">
+            <span class="status-dot"></span>
+            <span id="peer-status">Select somebody online.</span>
+          </div>
+
+
+          <!-- VIDEO -->
+
+          <div id="video-area" hidden>
+
+            <div class="video-grid">
+
+              <div class="video-box">
+                <span class="video-label">
+                  <span class="lime-dot"></span>
+                  You
+                </span>
+
+                <video
+                  id="local-video"
+                  autoplay
+                  muted
+                  playsinline
+                ></video>
+              </div>
+
+
+              <div class="video-box">
+                <span class="video-label">
+                  <span class="cyan-dot"></span>
+                  <span id="remote-video-label">Peer</span>
+                </span>
+
+                <video
+                  id="remote-video"
+                  autoplay
+                  playsinline
+                ></video>
+              </div>
+
+            </div>
+
+            <button id="hangup-video" type="button">
+              ☎ Hang up
+            </button>
+
+          </div>
+
+
+          <button id="start-video" type="button" disabled>
+            ▣ Start video
+          </button>
+
+
+          <!-- CHAT DISPLAY -->
+
+          <div class="chat-screen">
+            <div id="messages"></div>
+          </div>
+
+
+          <!-- MESSAGE INPUT -->
 
           <form id="message-form">
-            <input id="message" placeholder="Message..." autocomplete="off" disabled>
-            <button id="send" type="submit" disabled>Send</button>
+
+            <input
+              id="message"
+              placeholder="Type a message..."
+              autocomplete="off"
+              disabled
+            >
+
+            <button id="send" type="submit" disabled>
+              ▷ Send
+            </button>
+
           </form>
+
         </section>
+
       </div>
+
+    </main>
+
+
+    <!-- DEBUG ============================================================ -->
+
+    <section id="debug-panel">
+
+      <div class="debug-header">
+
+        <strong>DEBUG</strong>
+
+        <div>
+          <button id="copy-debug" type="button">Copy log</button>
+          <button id="clear-debug" type="button">Clear</button>
+        </div>
+
+      </div>
+
+      <pre id="debug-log">Slovakia Based debug ready.</pre>
+
     </section>
-  </main>
 
-
-  <section id="debug-panel">
-    <div class="debug-header">
-      <strong>Debug log</strong>
-      <div>
-        <button id="copy-debug" type="button">Copy log</button>
-        <button id="clear-debug" type="button">Clear</button>
-      </div>
-    </div>
-    <pre id="debug-log">Slovakia Based debug ready.</pre>
-  </section>
+  </div>
 
   <script src="/app.js"></script>
+
 </body>
 </html>
