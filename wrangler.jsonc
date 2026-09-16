@@ -6,5 +6,19 @@
   "assets": {
     "directory": "./public",
     "binding": "ASSETS"
-  }
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CATEGORY_ROOM",
+        "class_name": "CategoryRoom"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["CategoryRoom"]
+    }
+  ]
 }
