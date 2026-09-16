@@ -1,1 +1,64 @@
-<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Slovakia Based — P2P Chat</title><link rel='stylesheet' href='style.css'></head><body><main><header><div class='logo'>SB</div><div><h1>Slovakia Based</h1><p>P2P Chat · MVP v0.1</p></div></header><section class='card intro'><h2>Choose a category</h2><p>This first version is the foundation for peer-to-peer chat. Pick a category and choose a nickname.</p><label>Nickname<input id='nickname' maxlength='24' placeholder='Your nickname' autocomplete='nickname'></label></section><section id='categories' class='grid'></section><section id='room' class='card room hidden'><button id='back'>← Categories</button><h2 id='roomTitle'></h2><div class='status'><span class='dot'></span><span>Prototype lobby</span></div><p id='welcome'></p><div class='notice'>P2P messaging will be connected in the next step. This page already keeps the category and nickname flow we will use for WebRTC.</div></section><footer>No account · No stored messages · P2P foundation</footer></main><script src='app.js'></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slovakia Based</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Slovakia Based</h1>
+      <p>Decentralized P2P chat</p>
+    </header>
+
+    <section id="login">
+      <h2>Choose nickname</h2>
+      <input id="nickname" maxlength="32" placeholder="Nickname" autocomplete="off">
+
+      <h2>Choose category</h2>
+
+      <div id="categories">
+        <button data-category="knives-edc">🔪 Knives & EDC</button>
+        <button data-category="cars">🚗 Cars</button>
+        <button data-category="gaming">🎮 Gaming</button>
+        <button data-category="it-technology">💻 IT & Technology</button>
+        <button data-category="music-gear">🎵 Music & Gear</button>
+        <button data-category="outdoor">🏕️ Outdoor</button>
+        <button data-category="dogs-animals">🐕 Dogs & Animals</button>
+        <button data-category="general">💬 General</button>
+      </div>
+    </section>
+
+    <section id="room" hidden>
+      <div class="room-header">
+        <div>
+          <h2 id="room-name"></h2>
+          <span id="connection-status">Connecting...</span>
+        </div>
+        <button id="leave">Leave</button>
+      </div>
+
+      <div class="layout">
+        <aside>
+          <h3>Online</h3>
+          <div id="users"></div>
+        </aside>
+
+        <section class="chat">
+          <div id="peer-status">Select somebody online.</div>
+          <div id="messages"></div>
+
+          <form id="message-form">
+            <input id="message" placeholder="Message..." autocomplete="off" disabled>
+            <button id="send" type="submit" disabled>Send</button>
+          </form>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
