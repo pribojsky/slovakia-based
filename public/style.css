@@ -176,3 +176,30 @@ input:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+#debug-panel {
+  margin-top: 25px;
+  padding: 15px;
+  background: #0a0d12;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+}
+
+.debug-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+#debug-log {
+  height: 180px;
+  overflow: auto;
+  margin: 0;
+  padding: 10px;
+  background: #000;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

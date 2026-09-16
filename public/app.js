@@ -362,3 +362,133 @@ leaveButton.addEventListener("click", () => {
   room.hidden = true;
   login.hidden = false;
 });
+
+// =============================================================================
+// DEBUG LOGGER
+// =============================================================================
+
+const debugLogEl = document.querySelector("#debug-log");
+const copyDebugButton = document.querySelector("#copy-debug");
+const clearDebugButton = document.querySelector("#clear-debug");
+
+function debugLog(type, message, data = null) {
+  const time = new Date().toLocaleTimeString();
+
+  let line = `[${time}] ${type}: ${message}`;
+
+  if (data !== null) {
+    try {
+      line += ` ${JSON.stringify(data)}`;
+    } catch {
+      line += ` ${String(data)}`;
+    }
+  }
+
+  console.log(line);
+
+  if (debugLogEl) {
+    debugLogEl.textContent += `\n${line}`;
+    debugLogEl.scrollTop = debugLogEl.scrollHeight;
+  }
+}
+
+window.addEventListener("error", event => {
+  debugLog("ERROR", event.message);
+});
+
+window.addEventListener("unhandledrejection", event => {
+  debugLog(
+    "PROMISE ERROR",
+    event.reason?.message || String(event.reason)
+  );
+});
+
+copyDebugButton?.addEventListener("click", async () => {
+  await navigator.clipboard.writeText(debugLogEl.textContent);
+  debugLog("DEBUG", "Log copied to clipboard");
+});
+
+clearDebugButton?.addEventListener("click", () => {
+  debugLogEl.textContent = "Slovakia Based debug ready.";
+});
+
+debugLog("APP", "Application loaded");
+
+// =============================================================================
+// WEBRTC / DATACHANNEL DIAGNOSTICS
+// =============================================================================
+
+function attachPeerDiagnostics(connection) {
+  if (!connection) return;
+
+  debugLog("WEBRTC", "Diagnostics attached");
+
+  connection.addEventListener("connectionstatechange", () => {
+    debugLog("WEBRTC", `connectionState = ${connection.connectionState}`);
+  });
+
+  connection.addEventListener("iceconnectionstatechange", () => {
+    debugLog("ICE", `connectionState = ${connection.iceConnectionState}`);
+  });
+
+  connection.addEventListener("signalingstatechange", () => {
+    debugLog("SIGNAL", `state = ${connection.signalingState}`);
+  });
+
+  connection.addEventListener("negotiationneeded", () => {
+    debugLog("WEBRTC", "negotiationneeded");
+  });
+
+  connection.addEventListener("track", event => {
+    debugLog("MEDIA", `remote track received: ${event.track.kind}`);
+  });
+
+  connection.addEventListener("datachannel", event => {
+    debugLog("DATA", `remote DataChannel received: ${event.channel.label}`);
+    attachDataChannelDiagnostics(event.channel);
+  });
+}
+
+function attachDataChannelDiagnostics(channel) {
+  if (!channel || channel.__debugAttached) return;
+
+  channel.__debugAttached = true;
+
+  debugLog("DATA", `${channel.label}: state = ${channel.readyState}`);
+
+  channel.addEventListener("open", () => {
+    debugLog("DATA", `${channel.label}: OPEN`);
+  });
+
+  channel.addEventListener("close", () => {
+    debugLog("DATA", `${channel.label}: CLOSED`);
+  });
+
+  channel.addEventListener("error", event => {
+    debugLog("DATA ERROR", channel.label, event);
+  });
+
+  channel.addEventListener("message", event => {
+    debugLog("DATA RX", `${channel.label}: ${event.data}`);
+  });
+}
+
+// Automatically attach diagnostics whenever our existing code creates
+// an RTCPeerConnection or DataChannel.
+const originalCreatePeerConnection = createPeerConnection;
+
+createPeerConnection = function(targetId) {
+  const connection = originalCreatePeerConnection(targetId);
+
+  attachPeerDiagnostics(connection);
+
+  setTimeout(() => {
+    if (dataChannel) {
+      attachDataChannelDiagnostics(dataChannel);
+    }
+  }, 0);
+
+  return connection;
+};
+
+debugLog("DEBUG", "WebRTC diagnostics ready");
