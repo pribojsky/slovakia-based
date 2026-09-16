@@ -11,12 +11,22 @@ const connectionStatus = document.querySelector("#connection-status");
 const peerStatus = document.querySelector("#peer-status");
 const leaveButton = document.querySelector("#leave");
 
+const startVideoButton = document.querySelector("#start-video");
+const hangupVideoButton = document.querySelector("#hangup-video");
+const videoArea = document.querySelector("#video-area");
+const localVideo = document.querySelector("#local-video");
+const remoteVideo = document.querySelector("#remote-video");
+const remoteVideoLabel = document.querySelector("#remote-video-label");
+
 let socket = null;
 let selfId = null;
 let peerId = null;
 let peerNickname = null;
 let pc = null;
 let dataChannel = null;
+let localStream = null;
+
+let pendingCandidates = [];
 
 const rtcConfig = {
   iceServers: [
@@ -70,14 +80,19 @@ function joinCategory(category, label, nickname) {
 
     if (data.type === "answer" && pc) {
       await pc.setRemoteDescription(data.answer);
+      await flushPendingCandidates();
       return;
     }
 
-    if (data.type === "ice" && pc && data.candidate) {
-      try {
-        await pc.addIceCandidate(data.candidate);
-      } catch (error) {
-        console.error("ICE candidate error:", error);
+    if (data.type === "ice" && data.candidate) {
+      if (pc?.remoteDescription) {
+        try {
+          await pc.addIceCandidate(data.candidate);
+        } catch (error) {
+          console.error("ICE candidate error:", error);
+        }
+      } else {
+        pendingCandidates.push(data.candidate);
       }
     }
   });
@@ -115,6 +130,7 @@ function createPeerConnection(targetId) {
     pc.close();
   }
 
+  pendingCandidates = [];
   pc = new RTCPeerConnection(rtcConfig);
 
   pc.onicecandidate = event => {
@@ -127,13 +143,21 @@ function createPeerConnection(targetId) {
     }
   };
 
+  pc.ontrack = event => {
+    remoteVideo.srcObject = event.streams[0];
+    remoteVideoLabel.textContent = peerNickname || "Peer";
+    videoArea.hidden = false;
+  };
+
   pc.onconnectionstatechange = () => {
     if (pc.connectionState === "connected") {
       peerStatus.textContent = `P2P connected with ${peerNickname}`;
+      startVideoButton.disabled = false;
     }
 
     if (["failed", "disconnected", "closed"].includes(pc.connectionState)) {
       disableChat();
+      stopLocalMedia();
     }
   };
 
@@ -174,6 +198,7 @@ async function receiveOffer(data) {
   createPeerConnection(peerId);
 
   await pc.setRemoteDescription(data.offer);
+  await flushPendingCandidates();
 
   const answer = await pc.createAnswer();
   await pc.setLocalDescription(answer);
@@ -185,6 +210,20 @@ async function receiveOffer(data) {
   });
 }
 
+async function flushPendingCandidates() {
+  if (!pc?.remoteDescription) return;
+
+  for (const candidate of pendingCandidates) {
+    try {
+      await pc.addIceCandidate(candidate);
+    } catch (error) {
+      console.error("ICE candidate error:", error);
+    }
+  }
+
+  pendingCandidates = [];
+}
+
 function setupDataChannel(channel) {
   dataChannel = channel;
 
@@ -192,6 +231,7 @@ function setupDataChannel(channel) {
     peerStatus.textContent = `P2P connected with ${peerNickname}`;
     messageInput.disabled = false;
     sendButton.disabled = false;
+    startVideoButton.disabled = false;
     messageInput.focus();
   };
 
@@ -202,6 +242,61 @@ function setupDataChannel(channel) {
   channel.onclose = () => {
     disableChat();
   };
+}
+
+startVideoButton.addEventListener("click", async () => {
+  if (!pc || !peerId) return;
+
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true
+    });
+
+    localVideo.srcObject = localStream;
+    remoteVideoLabel.textContent = peerNickname || "Peer";
+    videoArea.hidden = false;
+    startVideoButton.disabled = true;
+
+    for (const track of localStream.getTracks()) {
+      pc.addTrack(track, localStream);
+    }
+
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+
+    signal({
+      type: "offer",
+      to: peerId,
+      offer: pc.localDescription
+    });
+
+    peerStatus.textContent = `Video call with ${peerNickname}...`;
+  } catch (error) {
+    console.error("Camera/microphone error:", error);
+    peerStatus.textContent = "Camera or microphone permission denied.";
+  }
+});
+
+hangupVideoButton.addEventListener("click", () => {
+  stopLocalMedia();
+});
+
+function stopLocalMedia() {
+  if (localStream) {
+    for (const track of localStream.getTracks()) {
+      track.stop();
+    }
+  }
+
+  localStream = null;
+  localVideo.srcObject = null;
+  remoteVideo.srcObject = null;
+  videoArea.hidden = true;
+
+  if (dataChannel?.readyState === "open") {
+    startVideoButton.disabled = false;
+  }
 }
 
 function signal(data) {
@@ -239,6 +334,7 @@ function addMessage(author, text) {
 function disableChat() {
   messageInput.disabled = true;
   sendButton.disabled = true;
+  startVideoButton.disabled = true;
 
   if (peerNickname) {
     peerStatus.textContent = `Disconnected from ${peerNickname}`;
@@ -246,6 +342,8 @@ function disableChat() {
 }
 
 leaveButton.addEventListener("click", () => {
+  stopLocalMedia();
+
   dataChannel?.close();
   pc?.close();
   socket?.close();
@@ -256,6 +354,7 @@ leaveButton.addEventListener("click", () => {
   peerId = null;
   peerNickname = null;
   selfId = null;
+  pendingCandidates = [];
 
   usersEl.innerHTML = "";
   messagesEl.innerHTML = "";

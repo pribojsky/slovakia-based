@@ -48,6 +48,24 @@
 
         <section class="chat">
           <div id="peer-status">Select somebody online.</div>
+
+          <div id="video-area" hidden>
+            <div class="video-grid">
+              <div>
+                <span>You</span>
+                <video id="local-video" autoplay muted playsinline></video>
+              </div>
+              <div>
+                <span id="remote-video-label">Peer</span>
+                <video id="remote-video" autoplay playsinline></video>
+              </div>
+            </div>
+
+            <button id="hangup-video" type="button">📴 Hang up</button>
+          </div>
+
+          <button id="start-video" type="button" disabled>📹 Start video call</button>
+
           <div id="messages"></div>
 
           <form id="message-form">

@@ -136,3 +136,43 @@ input:disabled {
     min-height: 400px;
   }
 }
+
+#start-video {
+  margin-top: 15px;
+  align-self: flex-start;
+}
+
+#video-area {
+  margin-top: 15px;
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.video-grid > div {
+  display: grid;
+  gap: 6px;
+}
+
+.video-grid span {
+  color: #8b949e;
+  font-size: 14px;
+}
+
+.video-grid video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+@media (max-width: 700px) {
+  .video-grid {
+    grid-template-columns: 1fr;
+  }
+}
